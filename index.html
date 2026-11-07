@@ -1,0 +1,1768 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8f5">
+  <title>Finals Focus — make every study session count</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d2925;
+      --muted: #78817b;
+      --line: #e8ebe6;
+      --paper: #fff;
+      --canvas: #f7f8f5;
+      --green: #287c5b;
+      --green-dark: #1f684b;
+      --mint: #e6f4eb;
+      --lime: #d8f177;
+      --orange: #e9a365;
+      --shadow: 0 8px 28px rgb(34 49 40 / 5%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .app { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar {
+      position: sticky; top: 0; height: 100vh; padding: 27px 18px 22px;
+      display: flex; flex-direction: column; background: var(--paper); border-right: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 10px; font-size: 16px; font-weight: 750; letter-spacing: -.5px; }
+    .brand-mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 11px; color: #173a2b; background: var(--lime); }
+    .brand-mark svg { width: 19px; height: 19px; }
+    .nav-label { margin: 37px 11px 11px; color: #a0a8a2; font-size: 10px; font-weight: 750; letter-spacing: 1.2px; text-transform: uppercase; }
+    .nav-item { display: flex; align-items: center; gap: 12px; min-height: 42px; margin: 3px 0; padding: 0 11px; border-radius: 10px; color: #737d76; font-size: 13px; font-weight: 600; }
+    a.nav-item { width: 100%; border: 0; background: transparent; text-align: left; text-decoration: none; cursor: pointer; }
+    .nav-item.active { color: var(--green-dark); background: #edf6ef; }
+    .nav-item:focus-visible, .course-link:focus-visible { outline: 2px solid #78aa89; outline-offset: 2px; }
+    .nav-item svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    .course-list { display: grid; gap: 5px; }
+    .course-link { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 11px; border: 0; background: transparent; color: #737d76; text-align: left; font-size: 12px; }
+    .course-dot { width: 8px; height: 8px; flex: 0 0 8px; border-radius: 50%; }
+    .sidebar-bottom { margin-top: auto; }
+    .tip-card { padding: 16px; border: 1px solid #e8efdf; border-radius: 14px; background: #f7faef; }
+    .tip-icon { display: grid; place-items: center; width: 30px; height: 30px; margin-bottom: 12px; border-radius: 9px; background: var(--lime); font-size: 16px; }
+    .tip-card strong { display: block; margin-bottom: 5px; font-size: 12px; }
+    .tip-card p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .main { width: min(100%, 1500px); margin: 0 auto; padding: 31px clamp(22px, 4vw, 58px) 50px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 32px; }
+    .date-label { color: var(--muted); font-size: 12px; font-weight: 550; }
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+    .avatar { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #f2e3d8; color: #73513d; font-size: 12px; font-weight: 750; }
+    .account-status { color: var(--muted); font-size: 10px; }
+    .account-form { display: grid; gap: 12px; }
+    .account-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+    .account-message { min-height: 15px; color: var(--green-dark); font-size: 10px; line-height: 1.5; }
+    .account-message.error { color: #b74735; }
+    .account-help { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
+    .account-divider { margin: 5px 0; border: 0; border-top: 1px solid var(--line); }
+    .welcome { margin-bottom: 24px; }
+    .welcome h1 { margin: 0 0 7px; font-size: clamp(24px, 3vw, 31px); letter-spacing: -1.15px; }
+    .welcome p { margin: 0; color: var(--muted); font-size: 13px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 39px; padding: 0 14px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink); font-size: 12px; font-weight: 650; transition: .15s ease; }
+    .btn:hover { border-color: #b7c8bb; transform: translateY(-1px); }
+    .btn-primary { border-color: var(--green); background: var(--green); color: white; }
+    .btn-primary:hover { border-color: var(--green-dark); background: var(--green-dark); }
+    .btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .hero {
+      position: relative; display: flex; align-items: center; justify-content: space-between; gap: 25px;
+      min-height: 190px; overflow: hidden; margin-bottom: 20px; padding: 27px 34px;
+      border-radius: 17px; background: #1f4937; color: #fff;
+    }
+    .hero::after { position: absolute; top: -98px; right: 7%; width: 310px; height: 310px; border: 1px solid rgb(255 255 255 / 9%); border-radius: 50%; content: ""; }
+    .hero::before { position: absolute; top: -59px; right: 14%; width: 231px; height: 231px; border: 1px solid rgb(255 255 255 / 9%); border-radius: 50%; content: ""; }
+    .hero-copy { position: relative; z-index: 1; max-width: 520px; }
+    .eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 13px; color: #c7e4c9; font-size: 10px; font-weight: 750; letter-spacing: 1.1px; text-transform: uppercase; }
+    .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime); }
+    .hero h2 { margin: 0 0 8px; font-size: clamp(21px, 2.4vw, 27px); letter-spacing: -.7px; }
+    .hero p { margin: 0; color: #c6d6cc; font-size: 12px; line-height: 1.6; }
+    .hero-countdown { position: relative; z-index: 1; min-width: 170px; padding-left: 26px; border-left: 1px solid rgb(255 255 255 / 20%); }
+    .count-number { display: block; color: var(--lime); font-size: 54px; font-weight: 750; line-height: 1; letter-spacing: -3px; }
+    .count-label { display: block; margin-top: 6px; color: #d5e0d8; font-size: 11px; }
+    .count-date { margin-top: 13px; color: #c6d6cc; font-size: 10px; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; margin-bottom: 21px; }
+    .stat-card, .panel { border: 1px solid var(--line); border-radius: 13px; background: var(--paper); box-shadow: var(--shadow); }
+    .stat-card { min-height: 105px; padding: 16px; }
+    .stat-top { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 11px; font-weight: 550; }
+    .stat-icon { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 8px; background: #f1f6ed; color: var(--green); }
+    .stat-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    .stat-value { display: flex; align-items: baseline; gap: 5px; margin-top: 9px; font-size: 23px; font-weight: 720; letter-spacing: -.7px; }
+    .stat-note { color: #a0a8a2; font-size: 10px; font-weight: 500; letter-spacing: 0; }
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(260px, .9fr); gap: 16px; align-items: start; }
+    .column { display: grid; gap: 16px; }
+    .panel { padding: 19px; }
+    .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+    .panel-head h3 { margin: 0; font-size: 14px; letter-spacing: -.2px; }
+    .panel-sub { margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .text-button { padding: 2px 0; border: 0; background: transparent; color: var(--green); font-size: 10px; font-weight: 700; }
+    .exam-list { display: grid; gap: 9px; }
+    .exam-row { display: grid; grid-template-columns: 38px minmax(0,1fr) auto auto; align-items: center; gap: 11px; min-height: 58px; padding: 9px 10px; border: 1px solid #edf0ec; border-radius: 10px; }
+    .exam-date { display: grid; place-items: center; width: 37px; height: 38px; border-radius: 8px; background: #f4f6f2; }
+    .exam-date b { font-size: 13px; line-height: 1; }
+    .exam-date span { margin-top: 3px; color: var(--muted); font-size: 8px; font-weight: 750; text-transform: uppercase; }
+    .exam-name { overflow: hidden; font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .exam-detail { margin-top: 4px; color: var(--muted); font-size: 9px; }
+    .exam-days { color: var(--green); font-size: 10px; font-weight: 700; text-align: right; white-space: nowrap; }
+    .exam-days span { display: block; margin-top: 3px; color: #9aa39c; font-size: 9px; font-weight: 500; }
+    .exam-actions { display: flex; align-items: center; gap: 3px; }
+    .edit-button { padding: 5px 6px; border: 0; border-radius: 6px; background: transparent; color: var(--green); font-size: 9px; font-weight: 700; }
+    .edit-button:hover { background: #edf6ef; }
+    .remove-button { display: grid; place-items: center; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: #a0a8a2; font-size: 16px; }
+    .remove-button:hover { background: #f9ecea; color: #b74735; }
+    .subjects { display: grid; gap: 9px; }
+    .subject-block { overflow: hidden; border: 1px solid #edf0ec; border-radius: 10px; }
+    .subject-block summary { display: flex; align-items: center; gap: 9px; min-height: 47px; padding: 9px 11px; cursor: pointer; list-style: none; }
+    .subject-block summary::-webkit-details-marker { display: none; }
+    .subject-block summary::after { margin-left: auto; color: #929b94; font-size: 11px; content: "+"; }
+    .subject-block[open] summary::after { content: "−"; }
+    .subject-title { overflow: hidden; font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .subject-count { margin-left: auto; color: var(--muted); font-size: 9px; white-space: nowrap; }
+    .subject-block summary .subject-count { margin-left: auto; }
+    .subject-content { padding: 0 11px 11px; }
+    .upload-button { min-height: 31px; padding: 0 10px; font-size: 10px; }
+    .file-input { display: none; }
+    .material-list { display: grid; gap: 7px; margin-top: 9px; }
+    .material-card { display: grid; grid-template-columns: 17px minmax(0, 1fr) auto; align-items: start; gap: 8px; padding: 9px; border-radius: 8px; background: #f7f8f5; }
+    .material-check { width: 15px; height: 15px; margin: 1px 0 0; accent-color: var(--green); }
+    .material-name { overflow-wrap: anywhere; font-size: 10px; font-weight: 650; line-height: 1.45; }
+    .material-note { margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .material-actions { display: flex; align-items: center; gap: 4px; }
+    .material-actions .edit-button { padding: 5px 4px; }
+    .material-actions .edit-button:disabled { cursor: not-allowed; opacity: .45; }
+    .material-empty { margin: 9px 0; color: var(--muted); font-size: 10px; }
+    .quiz-list { display: grid; gap: 7px; max-height: min(60vh, 500px); overflow: auto; }
+    .quiz-item { padding: 10px 12px; border: 1px solid #edf0ec; border-radius: 8px; }
+    .quiz-item summary { color: var(--ink); cursor: pointer; font-size: 11px; font-weight: 650; line-height: 1.5; }
+    .quiz-answer { margin: 8px 0 0; padding-top: 8px; border-top: 1px solid var(--line); color: #59645d; font-size: 10px; line-height: 1.6; white-space: pre-wrap; }
+    .blurt-dialog { width: min(940px, calc(100% - 24px)); max-width: 940px; height: min(800px, calc(100% - 24px)); max-height: 900px; overflow: hidden; }
+    .blurt-dialog[open] { display: flex; flex-direction: column; }
+    .blurt-inner { display: flex; flex: 1; min-height: 0; flex-direction: column; padding: 22px; }
+    .blurt-toolbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .blurt-toolbar h2 { margin: 0; font-size: 18px; letter-spacing: -.5px; }
+    .blurt-toolbar p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .blurt-actions { display: flex; align-items: center; gap: 7px; }
+    .blurt-pad { flex: 1; min-height: 180px; width: 100%; margin-top: 16px; padding: 16px; resize: none; border: 1px solid var(--line); border-radius: 10px; outline: none; color: var(--ink); font: inherit; font-size: 14px; line-height: 1.8; }
+    .blurt-pad:focus { border-color: #78aa89; box-shadow: 0 0 0 3px #e8f3eb; }
+    .blurt-status { min-height: 16px; margin-top: 7px; color: var(--muted); font-size: 10px; }
+    .blurt-comparison { display: none; min-height: 0; flex: 1; gap: 12px; margin-top: 13px; }
+    .blurt-comparison.visible { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .blurt-column { display: flex; min-height: 0; flex-direction: column; }
+    .blurt-column h3 { margin: 0 0 7px; font-size: 11px; }
+    .blurt-notes { flex: 1; min-height: 120px; overflow: auto; padding: 13px; border: 1px solid var(--line); border-radius: 9px; color: #536057; font-size: 12px; line-height: 1.7; white-space: pre-wrap; }
+    .blurt-inner.comparing .blurt-pad { display: none; }
+    .method-links { display: grid; gap: 7px; }
+    .method-link { display: grid; grid-template-columns: 26px minmax(0,1fr) auto; align-items: center; gap: 9px; padding: 9px; border: 1px solid #edf0ec; border-radius: 9px; }
+    .method-number { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 8px; background: #edf6ef; color: var(--green); font-size: 10px; font-weight: 750; }
+    .method-link strong { display: block; font-size: 10px; }
+    .method-link span { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; line-height: 1.4; }
+    .method-link a, .research-link { color: var(--green); font-size: 9px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+    .method-link a:hover, .research-link:hover { text-decoration: underline; }
+    .research-note, .method-disclaimer { margin: 10px 0 0; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .method-quiz { margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--line); }
+    .method-quiz summary { cursor: pointer; color: var(--green); font-size: 10px; font-weight: 700; }
+    .method-form { display: grid; gap: 10px; margin-top: 11px; }
+    .method-form .field { gap: 5px; }
+    .method-form .field label { font-size: 9px; }
+    .method-form .field select { height: 34px; font-size: 10px; }
+    .method-results { display: grid; gap: 7px; margin-top: 10px; }
+    .recommendation { padding: 10px; border-radius: 8px; background: #f4f8ec; }
+    .recommendation strong { font-size: 10px; }
+    .recommendation p { margin: 5px 0 0; color: #66745e; font-size: 9px; line-height: 1.55; }
+    .reminder-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .reminder-controls p { margin: 0; color: var(--muted); font-size: 9px; line-height: 1.55; }
+    .reminder-list { display: grid; gap: 6px; margin-top: 11px; }
+    .reminder-item { display: flex; justify-content: space-between; gap: 9px; padding: 8px 9px; border-radius: 8px; background: #f7f8f5; font-size: 9px; }
+    .reminder-item span:last-child { color: var(--muted); text-align: right; }
+    .reminder-status { margin-top: 9px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .empty { display: grid; place-items: center; min-height: 119px; padding: 20px; border: 1px dashed #dfe5dd; border-radius: 10px; color: var(--muted); text-align: center; }
+    .empty strong { color: var(--ink); font-size: 11px; }
+    .empty p { margin: 5px 0 0; font-size: 10px; }
+    .task-list { display: grid; gap: 2px; }
+    .task-row { display: grid; grid-template-columns: 18px minmax(0,1fr) auto 22px; align-items: start; gap: 10px; padding: 10px 1px; border-bottom: 1px solid #f0f2ef; }
+    .task-row:last-child { border-bottom: 0; }
+    .check { appearance: none; width: 16px; height: 16px; margin: 0; border: 1.5px solid #cbd3cc; border-radius: 5px; cursor: pointer; }
+    .check:checked { border-color: var(--green); background: var(--green); }
+    .check:checked::after { display: block; width: 4px; height: 8px; margin: 1px 0 0 5px; border: solid white; border-width: 0 1.7px 1.7px 0; content: ""; transform: rotate(45deg); }
+    .task-title { font-size: 10px; line-height: 1.45; }
+    .task-row.done .task-title { color: #9ba39d; text-decoration: line-through; }
+    .task-course { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; }
+    .task-time { color: #919b93; font-size: 9px; white-space: nowrap; }
+    .chart { display: flex; align-items: end; justify-content: space-around; height: 105px; padding: 8px 4px 0; border-bottom: 1px solid var(--line); }
+    .chart-day { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: end; height: 100%; gap: 6px; }
+    .chart-bar { width: min(24px, 48%); min-height: 3px; border-radius: 5px 5px 2px 2px; background: #dcecdf; transition: height .25s ease; }
+    .chart-bar.today { background: var(--green); }
+    .chart-day span { color: #9ba39d; font-size: 8px; }
+    .chart-footer { display: flex; justify-content: space-between; margin-top: 10px; color: var(--muted); font-size: 9px; }
+    .goal { padding: 15px; border-radius: 11px; background: #f4f8ec; }
+    .goal-top { display: flex; justify-content: space-between; color: #66745e; font-size: 10px; }
+    .goal-top strong { color: var(--ink); }
+    .progress { height: 6px; overflow: hidden; margin: 11px 0 7px; border-radius: 5px; background: #e3eadc; }
+    .progress-fill { width: 0; height: 100%; border-radius: inherit; background: var(--green); transition: width .3s ease; }
+    .goal-note { color: #899482; font-size: 9px; }
+    .quick-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; }
+    .timer-copy strong { display: block; font-size: 11px; }
+    .timer-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .timer { color: var(--green); font-variant-numeric: tabular-nums; font-size: 16px; font-weight: 750; }
+    .timer-settings { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin-top: 12px; }
+    .timer-setting { display: grid; gap: 4px; color: var(--muted); font-size: 9px; font-weight: 650; }
+    .timer-setting input { width: 100%; height: 33px; padding: 0 8px; border: 1px solid #dfe5df; border-radius: 7px; outline: none; background: white; color: var(--ink); font-size: 10px; }
+    .timer-setting input:focus { border-color: #78aa89; box-shadow: 0 0 0 3px #e8f3eb; }
+    .timer-setting input:disabled { background: #f5f6f3; color: var(--muted); }
+    .music-setup { display: grid; gap: 8px; margin-top: 13px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .music-setup-title { color: var(--ink); font-size: 10px; font-weight: 700; }
+    .music-fields { display: grid; grid-template-columns: minmax(85px, .7fr) minmax(0, 1.5fr); gap: 7px; }
+    .music-fields select, .music-fields input { min-width: 0; width: 100%; height: 34px; padding: 0 8px; border: 1px solid #dfe5df; border-radius: 7px; outline: none; background: white; color: var(--ink); font-size: 9px; }
+    .music-fields select:focus, .music-fields input:focus { border-color: #78aa89; box-shadow: 0 0 0 3px #e8f3eb; }
+    .music-connect-row { display: flex; align-items: center; gap: 8px; }
+    .music-connect-row .btn { min-height: 31px; padding: 0 10px; font-size: 9px; }
+    .music-status { min-width: 0; color: var(--muted); font-size: 9px; line-height: 1.5; overflow-wrap: anywhere; }
+    .music-player { margin-top: 10px; }
+    .music-player iframe { display: block; width: 100%; height: 152px; border: 0; border-radius: 9px; background: #f1f3f1; }
+    .music-player.youtube iframe { height: 190px; }
+    .break-reminder { display: none; margin-top: 10px; padding: 11px 12px; border-radius: 9px; background: #f4f8ec; color: #53634b; font-size: 10px; line-height: 1.55; }
+    .break-reminder.visible { display: block; }
+    .timer-study { display: grid; gap: 8px; margin-top: 13px; }
+    .timer-study select, .timer-study input { width: 100%; height: 35px; padding: 0 9px; border: 1px solid #dfe5df; border-radius: 8px; outline: none; background: white; color: var(--ink); font-size: 10px; }
+    .timer-study select:focus, .timer-study input:focus { border-color: #78aa89; box-shadow: 0 0 0 3px #e8f3eb; }
+    .timer-study select:disabled, .timer-study input:disabled { background: #f5f6f3; color: var(--muted); }
+    .subject-time-list { display: grid; gap: 9px; }
+    .subject-time-row { display: grid; grid-template-columns: 9px minmax(0,1fr) auto; align-items: center; gap: 8px; font-size: 10px; }
+    .subject-time-row span:nth-child(2) { min-width: 0; overflow-wrap: anywhere; }
+    .subject-time-topics { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .subject-time-row strong { font-size: 10px; font-variant-numeric: tabular-nums; }
+    .timer-controls { display: flex; gap: 7px; margin-top: 10px; }
+    .timer-controls .btn { flex: 1; min-height: 33px; padding: 0 8px; font-size: 10px; }
+    dialog { width: min(430px, calc(100% - 32px)); padding: 0; border: 0; border-radius: 15px; box-shadow: 0 24px 80px rgb(15 31 22 / 24%); }
+    dialog::backdrop { background: rgb(18 32 24 / 42%); backdrop-filter: blur(2px); }
+    .dialog-inner { padding: 23px; }
+    .dialog-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; }
+    .dialog-head h2 { margin: 0; font-size: 18px; letter-spacing: -.5px; }
+    .dialog-head p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .close { width: 28px; height: 28px; border: 0; border-radius: 7px; background: #f2f4f1; color: #68736b; font-size: 17px; }
+    .form-grid { display: grid; gap: 13px; }
+    .field { display: grid; gap: 6px; }
+    .field label { color: #58635b; font-size: 10px; font-weight: 700; }
+    .field input, .field select { width: 100%; height: 39px; padding: 0 11px; border: 1px solid #dfe5df; border-radius: 8px; outline: none; background: white; color: var(--ink); font-size: 12px; }
+    .field input:focus, .field select:focus { border-color: #78aa89; box-shadow: 0 0 0 3px #e8f3eb; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+    .form-error { min-height: 12px; color: #b74735; font-size: 10px; }
+    .mobile-brand { display: none; }
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 205px minmax(0,1fr); }
+      .main { padding-right: 25px; padding-left: 25px; }
+      .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .content-grid { grid-template-columns: minmax(0,1fr); }
+      .column.right-column { grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; }
+    }
+    @media (max-width: 680px) {
+      .app { display: block; }
+      .sidebar { position: static; display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); align-items: center; gap: 5px; width: 100%; height: auto; padding: 13px 17px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .brand { grid-column: 1 / -1; padding: 0; }
+      .nav-label, .course-list, .sidebar-bottom { display: none; }
+      .sidebar a.nav-item { display: flex; justify-content: center; gap: 4px; min-height: 36px; margin: 0; padding: 0 2px; font-size: 9px; white-space: nowrap; }
+      .sidebar .nav-item svg { width: 13px; height: 13px; flex: 0 0 13px; }
+      .main { padding: 20px 16px 36px; }
+      .topbar { margin-bottom: 23px; }
+      .hero { min-height: 168px; padding: 23px 20px; }
+      .hero-countdown { min-width: 95px; padding-left: 16px; }
+      .count-number { font-size: 43px; }
+      .hero p { max-width: 250px; font-size: 11px; }
+      .stats { gap: 9px; }
+      .stat-card { min-height: 94px; padding: 12px; }
+      .stat-value { font-size: 20px; }
+      .column.right-column { grid-template-columns: 1fr; }
+      .panel { padding: 16px; }
+    }
+    @media (max-width: 390px) {
+      .hero { gap: 10px; padding: 19px 15px; }
+      .hero-countdown { min-width: 78px; padding-left: 11px; }
+      .count-number { font-size: 36px; }
+      .count-label { font-size: 9px; }
+      .count-date { font-size: 9px; }
+      .welcome h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 17.5 10 12l3.2 3.2L20 7.5M14.5 7.5H20v5.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+        </span>
+        finals focus
+      </div>
+      <div class="nav-label">Workspace</div>
+      <a class="nav-item active" href="#overview" aria-current="page"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Overview</a>
+      <a class="nav-item" href="#exam-calendar"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M7.5 3v4M16.5 3v4M4 9.5h16"/></svg>Exam calendar</a>
+      <a class="nav-item" href="#study-plan"><svg viewBox="0 0 24 24"><path d="M8 5h12M8 12h12M8 19h12"/><path d="m3.5 5 .8.8L6 4m-2.5 8 .8.8 1.7-1.8m-2.5 8 .8.8 1.7-1.8"/></svg>Study plan</a>
+      <a class="nav-item" href="#subject-resources"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 1 4 17.5z"/><path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H20"/></svg>Subjects</a>
+      <div class="nav-label">Your subjects <button class="text-button" id="sidebarAdd" style="float:right">+ Add</button></div>
+      <div class="course-list" id="courseList"></div>
+      <div class="sidebar-bottom">
+        <div class="tip-card">
+          <div class="tip-icon">✦</div>
+          <strong>A little adds up</strong>
+          <p>Short, focused sessions beat last-minute cramming. You're building momentum.</p>
+        </div>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="date-label" id="todayLabel"></div>
+        <div class="top-actions">
+          <button class="btn" id="quickAdd" aria-label="Add an exam">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add exam
+          </button>
+          <div class="account-status" id="accountStatus">Device only</div>
+          <button class="btn" type="button" id="accountButton">Sign in / sync</button>
+        </div>
+      </header>
+      <section class="welcome">
+        <h1 id="greeting">Let's make today count.</h1>
+        <p>A clear plan now means a calmer you on exam day.</p>
+      </section>
+      <section class="hero" id="overview" aria-label="Next exam countdown">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-dot"></span><span id="heroEyebrow">YOUR FINALS, YOUR PACE</span></div>
+          <h2 id="heroTitle">Your next big day is on the horizon.</h2>
+          <p id="heroText">Add your finals dates and we'll help you keep track of the days, the plan, and your progress.</p>
+        </div>
+        <div class="hero-countdown">
+          <span class="count-number" id="countNumber">—</span>
+          <span class="count-label" id="countLabel">days to go</span>
+          <div class="count-date" id="countDate">Add your first exam</div>
+        </div>
+      </section>
+      <section class="stats" aria-label="Study summary">
+        <article class="stat-card">
+          <div class="stat-top"><span>Study time today</span><span class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg></span></div>
+          <div class="stat-value"><span id="todayHours">0</span><span class="stat-note">hrs</span></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-top"><span>This week's focus</span><span class="stat-icon"><svg viewBox="0 0 24 24"><path d="M4 18V9m5 9V5m5 13v-6m5 6V3"/></svg></span></div>
+          <div class="stat-value"><span id="weekHours">0</span><span class="stat-note">hrs</span></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-top"><span>Exams coming up</span><span class="stat-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M7.5 3v4M16.5 3v4M4 9.5h16"/></svg></span></div>
+          <div class="stat-value"><span id="examCount">0</span><span class="stat-note">on your calendar</span></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-top"><span>Topics mastered</span><span class="stat-icon"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span></div>
+          <div class="stat-value"><span id="tasksDone">0</span><span class="stat-note" id="tasksNote">of 0 topics</span></div>
+        </article>
+      </section>
+      <div class="content-grid">
+        <div class="column">
+          <section class="panel" id="exam-calendar">
+            <div class="panel-head">
+              <div><h3>Upcoming exams</h3><div class="panel-sub">Your finals at a glance</div></div>
+              <button class="text-button" id="allExams">+ Add exam</button>
+            </div>
+            <div class="exam-list" id="examList"></div>
+          </section>
+          <section class="panel" id="subject-resources">
+            <div class="panel-head">
+              <div><h3>Subject study materials</h3><div class="panel-sub">Upload a lecture, mark it studied, then quiz yourself</div></div>
+            </div>
+            <div class="subjects" id="subjectMaterials"></div>
+          </section>
+          <section class="panel" id="study-plan">
+            <div class="panel-head">
+              <div><h3>Today's study plan</h3><div class="panel-sub">Small steps, steady progress</div></div>
+              <button class="text-button" id="addTask">+ Add topic</button>
+            </div>
+            <div class="task-list" id="taskList"></div>
+          </section>
+        </div>
+        <div class="column right-column">
+          <section class="panel">
+            <div class="panel-head">
+              <div><h3>Your study rhythm</h3><div class="panel-sub">Hours focused over the last 7 days</div></div>
+            </div>
+            <div class="chart" id="chart" aria-label="Study hours chart"></div>
+            <div class="chart-footer"><span>Daily focus time</span><strong id="chartTotal">0 hrs total</strong></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head">
+              <div><h3>Time by subject</h3><div class="panel-sub">Focus sessions this week</div></div>
+            </div>
+            <div class="subject-time-list" id="subjectTimeList"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head">
+              <div><h3>Daily focus goal</h3><div class="panel-sub">Aiming for 3 hours a day</div></div>
+            </div>
+            <div class="goal">
+              <div class="goal-top"><span>Today's progress</span><strong id="goalText">0 / 3 hrs</strong></div>
+              <div class="progress"><div class="progress-fill" id="goalFill"></div></div>
+              <div class="goal-note" id="goalNote">Every focused minute counts.</div>
+            </div>
+            <div class="quick-row">
+              <div class="timer-copy"><strong>Focus session</strong><span>One thing at a time</span></div>
+              <div class="timer" id="timerDisplay">25:00</div>
+            </div>
+            <div class="timer-settings">
+              <label class="timer-setting" for="focusDuration">Focus · minutes<input id="focusDuration" type="number" min="1" max="180" step="1" value="25"></label>
+              <label class="timer-setting" for="breakDuration">Break · minutes<input id="breakDuration" type="number" min="1" max="60" step="1" value="10"></label>
+            </div>
+            <button class="text-button" id="saveTimerSettings" type="button" style="margin-top:7px">Save timer lengths</button>
+            <div class="timer-study">
+              <select id="timerSubject" aria-label="Subject for focus session">
+                <option value="">General study</option>
+              </select>
+              <input id="timerTopic" type="text" maxlength="100" placeholder="What are you studying? (optional)" aria-label="Study topic for focus session">
+            </div>
+            <div class="goal-note" id="timerSessionLabel" style="margin-top:7px">Choose a subject to track class study time.</div>
+            <section class="music-setup" aria-label="Focus music">
+              <span class="music-setup-title">Focus music</span>
+              <div class="music-fields">
+                <select id="musicPlatform" aria-label="Music platform">
+                  <option value="spotify">Spotify</option>
+                  <option value="youtube">YouTube</option>
+                </select>
+                <input id="musicPlaylistUrl" type="url" inputmode="url" placeholder="Paste a playlist or track link" aria-label="Playlist or track link">
+              </div>
+              <div class="music-connect-row">
+                <button class="btn" type="button" id="connectMusic">Connect playlist</button>
+                <span class="music-status" id="musicStatus" aria-live="polite"></span>
+              </div>
+              <span class="music-status">Paste a Spotify or YouTube link. Playback uses the platform's embedded player; you may need to press play there.</span>
+              <div class="music-player" id="musicPlayer"></div>
+            </section>
+            <div class="break-reminder" id="breakReminder" role="status" aria-live="polite"></div>
+            <div class="timer-controls">
+              <button class="btn btn-primary" id="timerToggle">Start focus</button>
+              <button class="btn" id="timerReset">Reset</button>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-head">
+              <div><h3>Study methods</h3><div class="panel-sub">Evidence-backed ways to study smarter</div></div>
+            </div>
+            <div class="method-links">
+              <div class="method-link"><span class="method-number">01</span><div><strong>Retrieval practice</strong><span>Recall from memory, then check your answer.</span></div><a href="https://www.learningscientists.org/blog/2016/6/23-1" target="_blank" rel="noopener noreferrer">Explore ↗</a></div>
+              <div class="method-link"><span class="method-number">02</span><div><strong>Spaced practice</strong><span>Review in short sessions spread over time.</span></div><a href="https://www.learningscientists.org/blog/2016/7/21-1" target="_blank" rel="noopener noreferrer">Explore ↗</a></div>
+              <div class="method-link"><span class="method-number">03</span><div><strong>Interleaved practice</strong><span>Mix related topics or problem types.</span></div><a href="https://www.learningscientists.org/blog/2016/8/11-1" target="_blank" rel="noopener noreferrer">Explore ↗</a></div>
+            </div>
+            <p class="research-note">A major review found practice testing and distributed practice especially useful; interleaving may help with related problem types. <a class="research-link" href="https://doi.org/10.1111/j.1539-6053.2013.01015.x" target="_blank" rel="noopener noreferrer">Read the research review ↗</a></p>
+            <details class="method-quiz">
+              <summary>Get a recommendation for me</summary>
+              <form class="method-form" id="methodForm">
+                <div class="field"><label for="methodChallenge">What feels hardest?</label><select id="methodChallenge" name="challenge" required>
+                  <option value="" selected disabled>Choose one</option><option value="remember">Remembering facts after class</option><option value="apply">Choosing how to solve a problem</option><option value="retain">Keeping material fresh over time</option>
+                </select></div>
+                <div class="field"><label for="methodHabit">What do your study sessions usually look like?</label><select id="methodHabit" name="habit" required>
+                  <option value="" selected disabled>Choose one</option><option value="reread">Rereading or highlighting notes</option><option value="cram">Cramming close to the exam</option><option value="blocks">Studying one type of topic at a time</option><option value="mix">I already mix strategies</option>
+                </select></div>
+                <div class="field"><label for="methodTime">How soon is your next exam?</label><select id="methodTime" name="time" required>
+                  <option value="" selected disabled>Choose one</option><option value="soon">In the next 1–2 days</option><option value="week">In 3–7 days</option><option value="later">More than a week away</option>
+                </select></div>
+                <button class="btn btn-primary" type="submit">See my recommendations</button>
+              </form>
+              <div class="method-results" id="methodResults" aria-live="polite"></div>
+              <p class="method-disclaimer">A practical guide based on your answers, not a validated psychological test. Answers stay in this browser.</p>
+            </details>
+          </section>
+          <section class="panel">
+            <div class="panel-head">
+              <div><h3>Exam reminders</h3><div class="panel-sub">30, 15, 7, and 3 days before, plus exam day</div></div>
+            </div>
+            <div class="reminder-controls">
+              <p id="reminderDescription">Get browser notifications for upcoming exams while this page is open.</p>
+              <button class="btn btn-primary" id="enableReminders" type="button">Enable reminders</button>
+            </div>
+            <div class="reminder-status" id="reminderStatus" aria-live="polite"></div>
+            <div class="reminder-list" id="reminderList"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="examDialog">
+    <form class="dialog-inner" id="examForm">
+      <div class="dialog-head"><div><h2 id="examDialogTitle">Add an exam</h2><p id="examDialogDescription">Put a date on the calendar. We'll count down with you.</p></div><button class="close" type="button" data-close aria-label="Close">×</button></div>
+      <div class="form-grid">
+        <div class="field"><label for="examName">Course or exam name</label><input id="examName" name="name" required maxlength="60" placeholder="e.g. Biology 101"></div>
+        <div class="field"><label for="examDate">Exam date</label><input id="examDate" name="date" type="date" required></div>
+        <div class="field"><label for="examTime">Exam time <span style="font-weight:400;color:#929b94">(optional)</span></label><input id="examTime" name="time" type="time"></div>
+        <div class="field"><label for="examColor">Subject color</label><select id="examColor" name="color">
+          <option value="#6b8fc4">Blue</option><option value="#54a88a">Green</option><option value="#d68b63">Peach</option><option value="#9a7bc1">Purple</option><option value="#d3a53f">Gold</option>
+          <option value="#d66b83">Rose</option><option value="#e17652">Coral</option><option value="#cf8540">Orange</option><option value="#397c78">Teal</option><option value="#50a6bd">Sky blue</option>
+          <option value="#8871b5">Lavender</option><option value="#c05252">Red</option><option value="#7d9651">Olive</option><option value="#68727d">Slate</option><option value="#b477a2">Orchid</option>
+        </select></div>
+        <div class="form-error" id="examError" role="alert"></div>
+      </div>
+      <div class="form-actions"><button class="btn" type="button" data-close>Cancel</button><button class="btn btn-primary" id="examSubmit" type="submit">Save exam</button></div>
+    </form>
+  </dialog>
+  <dialog id="quizDialog">
+    <div class="dialog-inner">
+      <div class="dialog-head"><div><h2 id="quizTitle">Study questions</h2><p>Try answering each one before opening it to check.</p></div><button class="close" type="button" data-close aria-label="Close">×</button></div>
+      <div class="quiz-list" id="quizList"></div>
+    </div>
+  </dialog>
+  <dialog id="blurtDialog" class="blurt-dialog">
+    <div class="blurt-inner">
+      <div class="blurt-toolbar">
+        <div><h2 id="blurtTitle">Blurt it out</h2><p>Without looking at your notes, write everything you remember.</p></div>
+        <div class="blurt-actions">
+          <button class="btn" type="button" id="compareBlurt">Compare with lecture</button>
+          <button class="close" type="button" data-close aria-label="Close">×</button>
+        </div>
+      </div>
+      <textarea class="blurt-pad" id="blurtInput" aria-label="Write what you remember" placeholder="Start with a blank page. What did you just learn? Write it all down from memory..."></textarea>
+      <div class="blurt-status" id="blurtStatus" aria-live="polite">Your blurt is saved automatically on this device.</div>
+      <div class="blurt-comparison" id="blurtComparison">
+        <div class="blurt-column"><h3>Your blurt</h3><div class="blurt-notes" id="blurtResponse"></div></div>
+        <div class="blurt-column"><h3>Lecture / slides</h3><div class="blurt-notes" id="blurtSource"></div></div>
+      </div>
+    </div>
+  </dialog>
+  <dialog id="taskDialog">
+    <form class="dialog-inner" id="taskForm">
+      <div class="dialog-head"><div><h2>Add a study topic</h2><p>Turn your revision into a doable next step.</p></div><button class="close" type="button" data-close aria-label="Close">×</button></div>
+      <div class="form-grid">
+        <div class="field"><label for="taskName">What will you study?</label><input id="taskName" name="name" required maxlength="100" placeholder="e.g. Review cell division"></div>
+        <div class="field"><label for="taskExam">Related exam</label><select id="taskExam" name="exam"></select></div>
+        <div class="field"><label for="taskDuration">Time estimate</label><select id="taskDuration" name="duration"><option value="25">25 minutes</option><option value="45">45 minutes</option><option value="60">1 hour</option><option value="90">1.5 hours</option></select></div>
+        <div class="form-error" id="taskError" role="alert"></div>
+      </div>
+      <div class="form-actions"><button class="btn" type="button" data-close>Cancel</button><button class="btn btn-primary" type="submit">Add topic</button></div>
+    </form>
+  </dialog>
+  <dialog id="accountDialog">
+    <div class="dialog-inner">
+      <div class="dialog-head"><div><h2>Account &amp; sync</h2><p>Sync your study plan across your signed-in devices.</p></div><button class="close" type="button" data-close aria-label="Close">×</button></div>
+      <div class="account-form">
+        <p class="account-help">First, configure your Supabase project. Use its project URL and public anon key (never a service-role key), and run <a href="./supabase-schema.sql" target="_blank" rel="noopener noreferrer">supabase-schema.sql</a> in the Supabase SQL Editor. For email confirmation, configure the hosted website URL in Supabase Auth.</p>
+        <div class="field"><label for="supabaseUrl">Supabase project URL</label><input id="supabaseUrl" type="url" autocomplete="url" placeholder="https://your-project.supabase.co"></div>
+        <div class="field"><label for="supabaseAnonKey">Supabase public anon key</label><input id="supabaseAnonKey" type="password" autocomplete="off" placeholder="Paste your public anon key"></div>
+        <div class="account-actions"><button class="btn" id="saveSupabaseConfig" type="button">Save project settings</button></div>
+        <hr class="account-divider">
+        <div class="field"><label for="accountEmail">Email</label><input id="accountEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+        <div class="field"><label for="accountPassword">Password</label><input id="accountPassword" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters"></div>
+        <div class="account-actions">
+          <button class="btn" id="signUpButton" type="button">Create account</button>
+          <button class="btn btn-primary" id="signInButton" type="button">Sign in &amp; sync</button>
+          <button class="btn" id="signOutButton" type="button" hidden>Sign out</button>
+        </div>
+        <div class="account-message" id="accountMessage" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+  </dialog>
+  <script>
+    (() => {
+      const STORAGE_KEY = "finals-focus-v1";
+      const SUPABASE_CONFIG_KEY = "finals-focus-supabase-config";
+      const AUTH_SESSION_KEY = "finals-focus-auth-session";
+      const PENDING_IMPORT_KEY = "finals-focus-pending-import";
+      const COLORS = ["#6b8fc4", "#54a88a", "#d68b63", "#9a7bc1", "#d3a53f", "#d66b83", "#e17652", "#cf8540", "#397c78", "#50a6bd", "#8871b5", "#c05252", "#7d9651", "#68727d", "#b477a2"];
+      const DEFAULT_FOCUS_MINUTES = 25;
+      const DEFAULT_BREAK_MINUTES = 10;
+      const emptyState = { exams: [], tasks: [], sessions: [], materials: [], reminders: { enabled: false, sent: [] } };
+      let state;
+      try {
+        state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || emptyState;
+        if (!Array.isArray(state.exams) || !Array.isArray(state.tasks) || !Array.isArray(state.sessions)) state = emptyState;
+      } catch {
+        state = emptyState;
+      }
+      let supabaseConfig = null;
+      let authSession = null;
+      try {
+        supabaseConfig = JSON.parse(localStorage.getItem(SUPABASE_CONFIG_KEY) || "null");
+        authSession = JSON.parse(localStorage.getItem(AUTH_SESSION_KEY) || "null");
+      } catch {
+        console.error("Could not read the saved account settings.");
+      }
+      if (authSession?.user?.id) {
+        try {
+          state = JSON.parse(localStorage.getItem(`${STORAGE_KEY}:${authSession.user.id}`)) || state;
+        } catch {
+          console.error("Could not read the local study-data cache for this account.");
+        }
+      }
+      let cloudSyncTimer = null;
+      let cloudSyncChain = Promise.resolve();
+      let isLoadingCloudData = false;
+      if (!Array.isArray(state.materials)) state.materials = [];
+      if (!state.reminders || !Array.isArray(state.reminders.sent)) state.reminders = { enabled: false, sent: [] };
+      if (!state.timerSettings) state.timerSettings = { focusMinutes: DEFAULT_FOCUS_MINUTES, breakMinutes: DEFAULT_BREAK_MINUTES };
+      if (!state.musicSettings || typeof state.musicSettings !== "object") state.musicSettings = { platform: "spotify", playlistUrl: "" };
+      if (!["spotify", "youtube"].includes(state.musicSettings.platform)) state.musicSettings.platform = "spotify";
+      if (typeof state.musicSettings.playlistUrl !== "string") state.musicSettings.playlistUrl = "";
+      const validDuration = (value, max) => Number.isInteger(value) && value >= 1 && value <= max;
+      if (!validDuration(state.timerSettings.focusMinutes, 180)) state.timerSettings.focusMinutes = DEFAULT_FOCUS_MINUTES;
+      if (!validDuration(state.timerSettings.breakMinutes, 60)) state.timerSettings.breakMinutes = DEFAULT_BREAK_MINUTES;
+      let timerMode = "focus";
+      let timerSeconds = state.timerSettings.focusMinutes * 60;
+      let timerInterval = null;
+      let timerRunning = false;
+      let timerElapsedSeconds = 0;
+      let timerSession = null;
+      let currentBreakTip = "";
+      let editingExamId = null;
+      let activeBlurtMaterialId = null;
+
+      const $ = (selector) => document.querySelector(selector);
+      const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[char]);
+      const localDate = (date = new Date()) => {
+        const copy = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+        return copy.toISOString().slice(0, 10);
+      };
+      const dayDiff = (dateString) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const target = new Date(`${dateString}T00:00:00`);
+        return Math.ceil((target - today) / 86400000);
+      };
+      const prettyDate = (dateString, options = { weekday: "short", month: "short", day: "numeric" }) =>
+        new Date(`${dateString}T12:00:00`).toLocaleDateString(undefined, options);
+      const save = () => {
+        try {
+          const userId = authSession?.user?.id;
+          const key = userId ? `${STORAGE_KEY}:${userId}` : STORAGE_KEY;
+          localStorage.setItem(key, JSON.stringify(state));
+          if (userId && !isLoadingCloudData) scheduleCloudSync();
+        } catch {
+          console.error("Could not save your study data in this browser.");
+          if (authSession?.user?.id) setAccountMessage("Could not save on this device. Check available browser storage.", true);
+        }
+      };
+      const setAccountMessage = (message, isError = false) => {
+        $("#accountMessage").textContent = message;
+        $("#accountMessage").classList.toggle("error", isError);
+      };
+      const setAccountStatus = (message) => {
+        $("#accountStatus").textContent = message;
+      };
+      const requireSupabaseConfig = () => {
+        if (!supabaseConfig?.url || !supabaseConfig?.anonKey) {
+          throw new Error("Save your Supabase project URL and public anon key first.");
+        }
+        return supabaseConfig;
+      };
+      const storeAuthSession = (session) => {
+        authSession = session;
+        if (session) localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
+        else localStorage.removeItem(AUTH_SESSION_KEY);
+        updateAccountControls();
+      };
+      const updateAccountControls = () => {
+        const signedIn = Boolean(authSession?.user?.email);
+        $("#accountStatus").textContent = signedIn ? authSession.user.email : supabaseConfig ? "Not signed in" : "Device only";
+        $("#accountButton").textContent = signedIn ? "Account & sync" : "Sign in / sync";
+        $("#signOutButton").hidden = !signedIn;
+        $("#signUpButton").hidden = signedIn;
+        $("#signInButton").hidden = signedIn;
+        if (signedIn && !isLoadingCloudData) setAccountMessage("Signed in. Study changes sync automatically.");
+      };
+      const supabaseRequest = async (path, { method = "GET", body, token, prefer } = {}) => {
+        const config = requireSupabaseConfig();
+        const headers = {
+          apikey: config.anonKey,
+          Authorization: `Bearer ${token || config.anonKey}`
+        };
+        if (body !== undefined) headers["Content-Type"] = "application/json";
+        if (prefer) headers.Prefer = prefer;
+        const response = await fetch(`${config.url}${path}`, {
+          method,
+          headers,
+          body: body === undefined ? undefined : JSON.stringify(body)
+        });
+        const raw = await response.text();
+        let data = null;
+        if (raw) {
+          try {
+            data = JSON.parse(raw);
+          } catch {
+            throw new Error("Supabase returned an unreadable response. Check your project URL.");
+          }
+        }
+        if (!response.ok) {
+          const message = data?.msg || data?.message || data?.error_description || data?.error || `Request failed (${response.status}).`;
+          throw new Error(message);
+        }
+        return data;
+      };
+      const saveAuthResponse = (response) => {
+        const expiresIn = Number(response.expires_in) || 3600;
+        const session = {
+          access_token: response.access_token,
+          refresh_token: response.refresh_token,
+          expires_at: Math.floor(Date.now() / 1000) + expiresIn,
+          user: response.user
+        };
+        storeAuthSession(session);
+        return session;
+      };
+      const getValidAuthSession = async () => {
+        if (!authSession?.access_token || !authSession.refresh_token) return null;
+        if (authSession.expires_at > Math.floor(Date.now() / 1000) + 60) return authSession;
+        const response = await supabaseRequest("/auth/v1/token?grant_type=refresh_token", {
+          method: "POST",
+          body: { refresh_token: authSession.refresh_token }
+        });
+        return saveAuthResponse(response);
+      };
+      const fetchCloudState = async (token, userId) => {
+        const rows = await supabaseRequest(`/rest/v1/study_data?select=data&user_id=eq.${encodeURIComponent(userId)}&limit=1`, { token });
+        return Array.isArray(rows) && rows.length ? rows[0].data : null;
+      };
+      const pushCloudState = async (session, data) => {
+        await supabaseRequest("/rest/v1/study_data?on_conflict=user_id", {
+          method: "POST",
+          token: session.access_token,
+          prefer: "resolution=merge-duplicates,return=minimal",
+          body: { user_id: session.user.id, data, updated_at: new Date().toISOString() }
+        });
+      };
+      const scheduleCloudSync = () => {
+        if (!authSession?.user?.id || isLoadingCloudData) return;
+        clearTimeout(cloudSyncTimer);
+        cloudSyncTimer = setTimeout(() => {
+          const snapshot = JSON.parse(JSON.stringify(state));
+          cloudSyncChain = cloudSyncChain.then(async () => {
+            const session = await getValidAuthSession();
+            if (!session) return;
+            setAccountStatus("Syncing…");
+            try {
+              await pushCloudState(session, snapshot);
+              if (authSession?.user?.id === session.user.id) setAccountStatus(session.user.email);
+            } catch (error) {
+              if (authSession?.user?.id === session.user.id) {
+                setAccountStatus("Sync issue");
+                setAccountMessage(`Cloud sync failed: ${error.message}`, true);
+              }
+            }
+          }).catch((error) => {
+            console.error("Cloud sync could not run:", error);
+            setAccountStatus("Sync issue");
+            setAccountMessage(`Cloud sync failed: ${error.message}`, true);
+          });
+        }, 600);
+      };
+      const loadAccountData = async (session, { importCurrentDevice = false } = {}) => {
+        isLoadingCloudData = true;
+        let needsInitialSync = false;
+        setAccountStatus("Loading cloud data…");
+        try {
+          const cloudData = await fetchCloudState(session.access_token, session.user.id);
+          let nextState = cloudData;
+          if (!nextState && importCurrentDevice) nextState = state;
+          if (!nextState) {
+            try {
+              const pending = JSON.parse(localStorage.getItem(PENDING_IMPORT_KEY) || "null");
+              if (pending?.email?.toLowerCase() === session.user.email?.toLowerCase()) {
+                nextState = pending.data;
+                localStorage.removeItem(PENDING_IMPORT_KEY);
+              }
+            } catch {
+              console.error("Could not read pending study-data import.");
+            }
+          }
+          if (!nextState) nextState = { ...emptyState };
+          if (!Array.isArray(nextState.exams) || !Array.isArray(nextState.tasks) || !Array.isArray(nextState.sessions)) {
+            throw new Error("The cloud study data is incomplete or invalid.");
+          }
+          if (!Array.isArray(nextState.materials)) nextState.materials = [];
+          if (!nextState.reminders || !Array.isArray(nextState.reminders.sent)) nextState.reminders = { enabled: false, sent: [] };
+          if (!nextState.timerSettings) nextState.timerSettings = { focusMinutes: DEFAULT_FOCUS_MINUTES, breakMinutes: DEFAULT_BREAK_MINUTES };
+          if (!validDuration(nextState.timerSettings.focusMinutes, 180)) nextState.timerSettings.focusMinutes = DEFAULT_FOCUS_MINUTES;
+          if (!validDuration(nextState.timerSettings.breakMinutes, 60)) nextState.timerSettings.breakMinutes = DEFAULT_BREAK_MINUTES;
+          if (!nextState.musicSettings || typeof nextState.musicSettings !== "object") nextState.musicSettings = { platform: "spotify", playlistUrl: "" };
+          if (!["spotify", "youtube"].includes(nextState.musicSettings.platform)) nextState.musicSettings.platform = "spotify";
+          if (typeof nextState.musicSettings.playlistUrl !== "string") nextState.musicSettings.playlistUrl = "";
+          state = nextState;
+          localStorage.setItem(`${STORAGE_KEY}:${session.user.id}`, JSON.stringify(state));
+          render();
+          setAccountStatus(session.user.email);
+          setAccountMessage(cloudData ? "Your study data is synced from your account." : "Account ready. Your study data will sync automatically.");
+          needsInitialSync = !cloudData;
+        } finally {
+          isLoadingCloudData = false;
+          if (needsInitialSync) scheduleCloudSync();
+        }
+      };
+      const normalizeSupabaseUrl = (value) => {
+        const url = new URL(value.trim());
+        if (url.protocol !== "https:" && url.hostname !== "localhost" && url.hostname !== "127.0.0.1") {
+          throw new Error("Use an HTTPS Supabase project URL.");
+        }
+        if (url.pathname !== "/" || url.search || url.hash) throw new Error("Enter the project URL without a path or query string.");
+        return url.origin;
+      };
+      const examsSorted = () => state.exams.filter((exam) => dayDiff(exam.date) >= 0)
+        .sort((a, b) => a.date.localeCompare(b.date));
+      const sessionsOn = (date) => state.sessions.filter((session) => session.date === date)
+        .reduce((sum, session) => sum + session.minutes, 0);
+      const sessionMinutesForExam = (examId, dates = null) => state.sessions
+        .filter((session) => session.examId === examId && (!dates || dates.has(session.date)))
+        .reduce((sum, session) => sum + session.minutes, 0);
+      const hours = (minutes) => minutes < 60 ? (minutes / 60).toFixed(minutes % 60 ? 1 : 0) : (minutes / 60).toFixed(minutes % 60 ? 1 : 0);
+      const extractLectureText = async (file) => {
+        const extension = file.name.split(".").pop().toLowerCase();
+        if (["txt", "md", "vtt", "srt"].includes(extension)) {
+          let text = await file.text();
+          if (extension === "vtt" || extension === "srt") {
+            text = text.replace(/^WEBVTT.*$/gm, "").replace(/^\s*\d+\s*$/gm, "").replace(/^\d{2}:\d{2}:\d{2}[,.]\d{3}.*$/gm, "");
+          }
+          return text;
+        }
+        if (extension !== "pptx" && extension !== "docx") {
+          throw new Error("Choose a PowerPoint (.pptx), Word document (.docx), or lecture notes/transcript (.txt, .md, .vtt, .srt).");
+        }
+        if (typeof DecompressionStream === "undefined") {
+          throw new Error("This browser cannot unpack Office files. Save the lecture as .txt or .md and upload that instead.");
+        }
+        const buffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        const view = new DataView(buffer);
+        const searchStart = Math.max(0, bytes.length - 65557);
+        let endRecord = -1;
+        for (let offset = bytes.length - 22; offset >= searchStart; offset--) {
+          if (view.getUint32(offset, true) === 0x06054b50) {
+            endRecord = offset;
+            break;
+          }
+        }
+        if (endRecord < 0) throw new Error("This Office file is not a readable ZIP document.");
+        const entryCount = view.getUint16(endRecord + 10, true);
+        let entryOffset = view.getUint32(endRecord + 16, true);
+        const decoder = new TextDecoder();
+        const xmlParts = [];
+        let expandedBytes = 0;
+        const paths = extension === "pptx"
+          ? /^ppt\/slides\/slide\d+\.xml$/
+          : /^word\/document\.xml$/;
+        for (let index = 0; index < entryCount; index++) {
+          if (view.getUint32(entryOffset, true) !== 0x02014b50) throw new Error("This Office file has a damaged archive directory.");
+          const flags = view.getUint16(entryOffset + 8, true);
+          const method = view.getUint16(entryOffset + 10, true);
+          const compressedSize = view.getUint32(entryOffset + 20, true);
+          const uncompressedSize = view.getUint32(entryOffset + 24, true);
+          const nameLength = view.getUint16(entryOffset + 28, true);
+          const extraLength = view.getUint16(entryOffset + 30, true);
+          const commentLength = view.getUint16(entryOffset + 32, true);
+          const localOffset = view.getUint32(entryOffset + 42, true);
+          const name = decoder.decode(bytes.subarray(entryOffset + 46, entryOffset + 46 + nameLength));
+          entryOffset += 46 + nameLength + extraLength + commentLength;
+          if (!paths.test(name)) continue;
+          if (flags & 1) throw new Error("Password-protected Office files are not supported.");
+          expandedBytes += uncompressedSize;
+          if (expandedBytes > 40 * 1024 * 1024) throw new Error("This Office file contains too much data to process safely.");
+          const localNameLength = view.getUint16(localOffset + 26, true);
+          const localExtraLength = view.getUint16(localOffset + 28, true);
+          const dataStart = localOffset + 30 + localNameLength + localExtraLength;
+          const compressed = bytes.slice(dataStart, dataStart + compressedSize);
+          let content;
+          if (method === 0) {
+            content = compressed;
+          } else if (method === 8) {
+            const stream = new Blob([compressed]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+            content = new Uint8Array(await new Response(stream).arrayBuffer());
+          } else {
+            throw new Error("This Office file uses an unsupported compression format.");
+          }
+          if (content.byteLength !== uncompressedSize) throw new Error("A slide or document page could not be read.");
+          const xml = new DOMParser().parseFromString(decoder.decode(content), "application/xml");
+          if (xml.querySelector("parsererror")) throw new Error("A slide or document page contains invalid text data.");
+          const drawingNamespace = extension === "pptx"
+            ? "http://schemas.openxmlformats.org/drawingml/2006/main"
+            : "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+          const paragraphs = Array.from(xml.getElementsByTagNameNS(drawingNamespace, "p"))
+            .map((paragraph) => Array.from(paragraph.getElementsByTagNameNS(drawingNamespace, "t"))
+              .map((node) => node.textContent).join(""))
+            .filter(Boolean);
+          if (paragraphs.length) xmlParts.push({ name, text: paragraphs.join(" ") });
+        }
+        xmlParts.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+        return xmlParts.map((part) => part.text).join("\n");
+      };
+      const createQuestions = (text) => {
+        const sentences = text
+          .replace(/\r/g, "\n")
+          .split(/\n+/)
+          .flatMap((line) => line.match(/[^.!?]+[.!?]?/g) || [])
+          .map((part) => part.replace(/^\s*[-*•\d.)]+\s*/, "").trim())
+          .filter((part) => part.length >= 24 && part.split(/\s+/).length >= 5)
+          .slice(0, 1000);
+        if (!sentences.length) {
+          throw new Error("This file did not contain enough readable lecture text to create questions.");
+        }
+        const stopWords = new Set("about after again against along also among another any because before being between both could does doing down during each from further have having here into itself just more most other over same should some such than that their them there these they this those through under until very was were what when where which while with would your".split(" "));
+        return Array.from({ length: 15 }, (_, index) => {
+          const sentence = sentences[index % sentences.length].slice(0, 400);
+          const terms = sentence.match(/\b[A-Za-z][A-Za-z'-]{3,}\b/g) || [];
+          const keyword = terms.filter((term) => !stopWords.has(term.toLowerCase()))
+            .sort((a, b) => b.length - a.length)[0];
+          if (keyword && index % 3 !== 2) {
+            const blanked = sentence.replace(new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i"), "_____");
+            return { prompt: `Fill in the missing key term: “${blanked}”`, answer: keyword };
+          }
+          return { prompt: `Explain this lecture point in your own words: “${sentence}”`, answer: sentence };
+        });
+      };
+      const addDays = (dateString, days) => {
+        const date = new Date(`${dateString}T12:00:00`);
+        date.setDate(date.getDate() + days);
+        return localDate(date);
+      };
+      const renderReminders = () => {
+        const supported = "Notification" in window;
+        const button = $("#enableReminders");
+        button.disabled = !supported || Notification.permission === "denied";
+        button.textContent = !supported ? "Unavailable" : Notification.permission === "denied" ? "Blocked" : state.reminders.enabled ? "Reminders on" : "Enable reminders";
+        if (!supported) {
+          $("#reminderStatus").textContent = "This browser does not support notifications. Use an up-to-date browser to enable reminders.";
+        } else if (Notification.permission === "denied") {
+          $("#reminderStatus").textContent = "Notifications are blocked for this page. Change the browser's site notification permission to enable reminders.";
+        } else if (state.reminders.enabled && Notification.permission === "granted") {
+          $("#reminderStatus").textContent = "Reminders are enabled. Keep this page open for notifications; reminders are saved on this device.";
+        } else {
+          $("#reminderStatus").textContent = "Allow notifications to receive reminders while this page is open.";
+        }
+        const today = localDate();
+        const events = state.exams.flatMap((exam) => [30, 15, 7, 3, 0].map((days) => ({
+          exam,
+          days,
+          date: addDays(exam.date, -days)
+        }))).filter((event) => event.date >= today && event.exam.date >= today)
+          .sort((a, b) => a.date.localeCompare(b.date) || b.days - a.days)
+          .slice(0, 5);
+        $("#reminderList").innerHTML = events.length ? events.map((event) =>
+          `<div class="reminder-item"><strong>${escapeHtml(event.exam.name)} · ${event.days ? `${event.days} days before` : "Exam day"}</strong><span>${event.date === today ? "Today" : escapeHtml(prettyDate(event.date))}</span></div>`
+        ).join("") : `<div class="reminder-status">Add an upcoming exam to see its reminder schedule.</div>`;
+      };
+      const renderTimerMode = () => {
+        const isFocus = timerMode === "focus";
+        $(".timer-copy strong").textContent = isFocus ? "Focus session" : "Break time";
+        $(".timer-copy span").textContent = isFocus ? "One thing at a time" : "Step away and recharge";
+        $("#timerToggle").textContent = timerRunning ? "Pause" : isFocus
+          ? timerElapsedSeconds ? "Resume focus" : "Start focus"
+          : timerElapsedSeconds ? "Resume break" : "Start break";
+        $("#timerToggle").classList.toggle("btn-primary", isFocus);
+        $("#focusDuration").value = state.timerSettings.focusMinutes;
+        $("#breakDuration").value = state.timerSettings.breakMinutes;
+        $("#focusDuration").disabled = timerRunning || timerElapsedSeconds > 0;
+        $("#breakDuration").disabled = timerRunning || timerElapsedSeconds > 0;
+        $("#timerSubject").disabled = timerMode === "break" || timerRunning || timerElapsedSeconds > 0;
+        $("#timerTopic").disabled = timerMode === "break" || timerRunning || timerElapsedSeconds > 0;
+        $("#saveTimerSettings").disabled = timerRunning || timerElapsedSeconds > 0;
+        $("#musicPlatform").value = state.musicSettings.platform;
+        if (document.activeElement !== $("#musicPlaylistUrl")) $("#musicPlaylistUrl").value = state.musicSettings.playlistUrl;
+        const breakReminder = $("#breakReminder");
+        breakReminder.classList.toggle("visible", timerMode === "break");
+        breakReminder.textContent = timerMode === "break" ? currentBreakTip : "";
+        const shouldPlay = isFocus && timerRunning && Boolean(state.musicSettings.playlistUrl);
+        const musicPlayer = $("#musicPlayer");
+        if (!shouldPlay) musicPlayer.replaceChildren();
+        if (timerMode === "break") {
+          $("#musicStatus").textContent = state.musicSettings.playlistUrl ? "Music is stopped for your break." : "Take this break away from the screen.";
+        } else if (shouldPlay) {
+          const embed = musicEmbedUrl(state.musicSettings.platform, state.musicSettings.playlistUrl);
+          if (!embed) {
+            musicPlayer.replaceChildren();
+            $("#musicStatus").textContent = "That playlist link needs updating. Connect a Spotify or YouTube playlist.";
+          } else {
+            $("#musicStatus").textContent = "Focus music is ready. Press play in the embedded player if it doesn't start automatically.";
+            const frame = document.createElement("iframe");
+            frame.title = `${state.musicSettings.platform === "spotify" ? "Spotify" : "YouTube"} focus music`;
+            frame.src = embed;
+            frame.loading = "lazy";
+            frame.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+            frame.referrerPolicy = "strict-origin-when-cross-origin";
+            musicPlayer.className = `music-player ${state.musicSettings.platform}`;
+            musicPlayer.replaceChildren(frame);
+          }
+        } else if (state.musicSettings.playlistUrl) {
+          $("#musicStatus").textContent = `Connected to ${state.musicSettings.platform === "spotify" ? "Spotify" : "YouTube"}. Music plays during active focus sessions.`;
+        } else {
+          $("#musicStatus").textContent = "Connect a playlist to play music during focus sessions.";
+        }
+      };
+      const musicEmbedUrl = (platform, value) => {
+        let url;
+        try {
+          url = new URL(value);
+        } catch {
+          return "";
+        }
+        if (url.protocol !== "https:") return "";
+        if (platform === "spotify") {
+          if (!["open.spotify.com", "www.open.spotify.com"].includes(url.hostname)) return "";
+          const parts = url.pathname.split("/").filter(Boolean);
+          if (parts[0] !== "embed") parts.unshift("embed");
+          if (!["playlist", "album", "track", "episode", "show"].includes(parts[1]) || !/^[A-Za-z0-9]+$/.test(parts[2] || "")) return "";
+          return `https://open.spotify.com/${parts.slice(0, 3).join("/")}?utm_source=generator`;
+        }
+        if (platform === "youtube") {
+          let videoId = "";
+          let playlistId = url.searchParams.get("list") || "";
+          if (["youtube.com", "www.youtube.com", "music.youtube.com", "m.youtube.com"].includes(url.hostname)) {
+            if (url.pathname === "/watch") videoId = url.searchParams.get("v") || "";
+            else if (url.pathname.startsWith("/shorts/")) videoId = url.pathname.split("/")[2] || "";
+            else if (url.pathname.startsWith("/live/")) videoId = url.pathname.split("/")[2] || "";
+            else if (url.pathname.startsWith("/playlist")) playlistId ||= url.searchParams.get("list") || "";
+          } else if (url.hostname === "youtu.be") {
+            videoId = url.pathname.split("/").filter(Boolean)[0] || "";
+          } else {
+            return "";
+          }
+          if (playlistId && !/^[A-Za-z0-9_-]+$/.test(playlistId)) return "";
+          if (videoId && !/^[A-Za-z0-9_-]+$/.test(videoId)) return "";
+          if (playlistId) return `https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(playlistId)}&autoplay=1`;
+          if (videoId) return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0`;
+        }
+        return "";
+      };
+      const pauseFocusMusic = () => {
+        $("#musicPlayer").replaceChildren();
+      };
+      const BREAK_TIPS = [
+        "Step away from your desk, stretch your shoulders, and let your eyes rest on something far away.",
+        "Leave your desk for a few minutes. Get a glass of water and take a few slow breaths.",
+        "Stand up and take a short walk. Give your eyes a screen-free rest.",
+        "Put the music aside for your break: step outside or by a window and get some fresh air.",
+        "Take a screen-free pause. Stretch, refill your water, and come back when the break ends."
+      ];
+      const checkReminders = () => {
+        if (!state.reminders.enabled || !("Notification" in window) || Notification.permission !== "granted") return;
+        const today = localDate();
+        for (const exam of state.exams) {
+          for (const days of [30, 15, 7, 3, 0]) {
+            if (addDays(exam.date, -days) !== today) continue;
+            const key = `${exam.id}:${exam.date}:${days}`;
+            if (state.reminders.sent.includes(key)) continue;
+            const title = days ? `${days} days until ${exam.name}` : `${exam.name} is today`;
+            const body = days ? `Your exam is on ${prettyDate(exam.date)}. Take a little time to review today.` : "Take a breath, trust your preparation, and good luck.";
+            try {
+              new Notification(title, { body, tag: key });
+              state.reminders.sent.push(key);
+              save();
+            } catch (error) {
+              console.error("Could not display an exam reminder:", error);
+            }
+          }
+        }
+      };
+      const render = () => {
+        const openSubjects = new Set(Array.from($("#subjectMaterials").querySelectorAll("details[open]"))
+          .map((subject) => subject.dataset.subject));
+        const today = localDate();
+        const exams = examsSorted();
+        const todayMinutes = sessionsOn(today);
+        const weekMinutes = Array.from({ length: 7 }, (_, i) => {
+          const date = new Date();
+          date.setDate(date.getDate() - (6 - i));
+          return sessionsOn(localDate(date));
+        });
+        const totalWeek = weekMinutes.reduce((sum, value) => sum + value, 0);
+        const completed = state.tasks.filter((task) => task.done).length;
+        const weekDates = new Set(Array.from({ length: 7 }, (_, index) => {
+          const date = new Date();
+          date.setDate(date.getDate() - (6 - index));
+          return localDate(date);
+        }));
+        $("#todayLabel").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+        const hour = new Date().getHours();
+        $("#greeting").textContent = hour < 12 ? "Good morning. Let's get focused." : hour < 17 ? "Good afternoon. Let's make it count." : "Good evening. You're doing great.";
+        $("#todayHours").textContent = hours(todayMinutes);
+        $("#weekHours").textContent = hours(totalWeek);
+        $("#examCount").textContent = exams.length;
+        $("#tasksDone").textContent = completed;
+        $("#tasksNote").textContent = `of ${state.tasks.length} topics`;
+
+        const nextExam = exams[0];
+        if (nextExam) {
+          const days = dayDiff(nextExam.date);
+          $("#heroEyebrow").textContent = "UP NEXT";
+          $("#heroTitle").textContent = nextExam.name;
+          $("#heroText").textContent = days === 0 ? "It's exam day. Take a breath—you've put in the work." : "One step at a time. Your study plan is here to help you feel ready.";
+          $("#countNumber").textContent = days;
+          $("#countLabel").textContent = days === 1 ? "day to go" : days === 0 ? "exam day" : "days to go";
+          $("#countDate").textContent = `${prettyDate(nextExam.date)}${nextExam.time ? ` · ${prettyTime(nextExam.time)}` : ""}`;
+        } else {
+          $("#heroEyebrow").textContent = "YOUR FINALS, YOUR PACE";
+          $("#heroTitle").textContent = "Your next big day is on the horizon.";
+          $("#heroText").textContent = "Add your finals dates and we'll help you keep track of the days, the plan, and your progress.";
+          $("#countNumber").textContent = "—";
+          $("#countLabel").textContent = "days to go";
+          $("#countDate").textContent = "Add your first exam";
+        }
+
+        $("#examList").innerHTML = exams.length ? exams.slice(0, 5).map((exam) => {
+          const date = new Date(`${exam.date}T12:00:00`);
+          const days = dayDiff(exam.date);
+          const dayText = days === 0 ? "Today" : days === 1 ? "Tomorrow" : `${days} days`;
+          return `<div class="exam-row">
+            <div class="exam-date" style="background:${exam.color}18;color:${exam.color}"><b>${date.getDate()}</b><span>${date.toLocaleDateString(undefined, { month: "short" })}</span></div>
+            <div><div class="exam-name">${escapeHtml(exam.name)}</div><div class="exam-detail">${escapeHtml(prettyDate(exam.date, { weekday: "long", year: "numeric", month: "long", day: "numeric" }))}${exam.time ? ` · ${escapeHtml(prettyTime(exam.time))}` : ""}</div></div>
+            <div class="exam-days">${dayText}<span>to go</span></div>
+            <div class="exam-actions">
+              <button class="edit-button" type="button" data-edit-exam="${escapeHtml(exam.id)}">Edit</button>
+              <button class="remove-button" type="button" data-remove-exam="${escapeHtml(exam.id)}" aria-label="Remove ${escapeHtml(exam.name)}">×</button>
+            </div>
+          </div>`;
+        }).join("") : `<div class="empty"><div><strong>No exams on your calendar yet</strong><p>Add your finals dates to start your countdown.</p></div></div>`;
+
+        $("#courseList").innerHTML = exams.slice(0, 5).map((exam) =>
+          `<button class="course-link" type="button" data-exam="${escapeHtml(exam.id)}"><span class="course-dot" style="background:${exam.color}"></span>${escapeHtml(exam.name)}</button>`
+        ).join("") || `<span class="course-link" style="color:#a0a8a2">Your subjects will show up here</span>`;
+
+        const allSubjects = state.exams.slice().sort((a, b) => a.date.localeCompare(b.date));
+        $("#subjectMaterials").innerHTML = allSubjects.length ? allSubjects.map((exam) => {
+          const materials = state.materials.filter((material) => material.examId === exam.id);
+          const done = materials.filter((material) => material.studied).length;
+          return `<details class="subject-block" id="subject-${escapeHtml(exam.id)}" data-subject="${escapeHtml(exam.id)}" ${openSubjects.has(exam.id) ? "open" : ""}>
+            <summary><span class="course-dot" style="background:${escapeHtml(exam.color)}"></span><span class="subject-title">${escapeHtml(exam.name)}</span><span class="subject-count">${done}/${materials.length} studied</span></summary>
+            <div class="subject-content">
+              <input class="file-input" id="upload-${escapeHtml(exam.id)}" type="file" data-upload-exam="${escapeHtml(exam.id)}" accept=".pptx,.docx,.txt,.md,.vtt,.srt">
+              <button class="btn upload-button" type="button" data-open-upload="${escapeHtml(exam.id)}">＋ Upload lecture or slides</button>
+              <button class="edit-button" type="button" data-edit-exam="${escapeHtml(exam.id)}">Edit subject</button>
+              <div class="material-list">${materials.length ? materials.map((material) =>
+                `<div class="material-card">
+                  <input class="material-check" type="checkbox" data-material="${escapeHtml(material.id)}" ${material.studied ? "checked" : ""} aria-label="Mark ${escapeHtml(material.name)} studied">
+                  <div><div class="material-name">${escapeHtml(material.name)}</div><div class="material-note">${material.studied ? "Studied · ready for a quiz" : "Mark studied when you're ready to test yourself"}</div></div>
+                  <div class="material-actions">
+                    <button class="edit-button" type="button" data-blurt="${escapeHtml(material.id)}">Blurt</button>
+                    <button class="edit-button" type="button" data-quiz="${escapeHtml(material.id)}" ${material.studied ? "" : "disabled"}>15 questions</button>
+                    <button class="remove-button" type="button" data-remove-material="${escapeHtml(material.id)}" aria-label="Remove ${escapeHtml(material.name)}">×</button>
+                  </div>
+                </div>`
+              ).join("") : `<p class="material-empty">No lectures uploaded yet. Add slides or class notes to get started.</p>`}</div>
+            </div>
+          </details>`;
+        }).join("") : `<div class="empty"><div><strong>Add a subject to get started</strong><p>Your lecture uploads will be organized under each exam.</p></div></div>`;
+
+        $("#taskList").innerHTML = state.tasks.length ? state.tasks.map((task) => {
+          const exam = state.exams.find((item) => item.id === task.examId);
+          return `<div class="task-row ${task.done ? "done" : ""}">
+            <input class="check" type="checkbox" data-task="${escapeHtml(task.id)}" ${task.done ? "checked" : ""} aria-label="Mark ${escapeHtml(task.name)} complete">
+            <span class="task-title">${escapeHtml(task.name)}<span class="task-course">${exam ? escapeHtml(exam.name) : "General study"}</span></span>
+            <span class="task-time">${task.duration} min</span>
+            <button class="remove-button" type="button" data-remove-task="${escapeHtml(task.id)}" aria-label="Remove ${escapeHtml(task.name)}">×</button>
+          </div>`;
+        }).join("") : `<div class="empty"><div><strong>Your plan starts with one topic</strong><p>Add a study topic to make today feel manageable.</p></div></div>`;
+
+        const max = Math.max(60, ...weekMinutes);
+        const start = new Date();
+        start.setDate(start.getDate() - 6);
+        $("#chart").innerHTML = weekMinutes.map((minutes, index) => {
+          const date = new Date(start);
+          date.setDate(start.getDate() + index);
+          const height = minutes ? Math.max(8, minutes / max * 74) : 3;
+          return `<div class="chart-day" title="${hours(minutes)} hours">
+            <div class="chart-bar ${index === 6 ? "today" : ""}" style="height:${height}px"></div>
+            <span>${date.toLocaleDateString(undefined, { weekday: "short" })}</span>
+          </div>`;
+        }).join("");
+        $("#chartTotal").textContent = `${hours(totalWeek)} hrs total`;
+        const goal = Math.min(100, todayMinutes / 180 * 100);
+        $("#goalText").textContent = `${hours(todayMinutes)} / 3 hrs`;
+        $("#goalFill").style.width = `${goal}%`;
+        $("#goalNote").textContent = todayMinutes >= 180 ? "Daily goal reached—nice work!" : `${Math.max(0, 180 - todayMinutes)} min to your daily goal.`;
+        $("#taskExam").innerHTML = `<option value="">General study</option>` + state.exams.map((exam) =>
+          `<option value="${escapeHtml(exam.id)}">${escapeHtml(exam.name)}</option>`
+        ).join("");
+        const selectedSubject = $("#timerSubject").value;
+        $("#timerSubject").innerHTML = `<option value="">General study</option>` + state.exams
+          .slice().sort((a, b) => a.name.localeCompare(b.name))
+          .map((exam) => `<option value="${escapeHtml(exam.id)}">${escapeHtml(exam.name)}</option>`).join("");
+        if (state.exams.some((exam) => exam.id === selectedSubject)) $("#timerSubject").value = selectedSubject;
+        $("#subjectTimeList").innerHTML = state.exams.length ? state.exams
+          .slice().sort((a, b) => sessionMinutesForExam(b.id, weekDates) - sessionMinutesForExam(a.id, weekDates))
+          .map((exam) => {
+            const topics = [...new Set(state.sessions
+              .filter((session) => session.examId === exam.id && weekDates.has(session.date) && session.topic)
+              .map((session) => session.topic))];
+            return `<div class="subject-time-row"><span class="course-dot" style="background:${escapeHtml(exam.color)}"></span><span>${escapeHtml(exam.name)}${topics.length ? `<span class="subject-time-topics">${topics.map(escapeHtml).join(" · ")}</span>` : ""}</span><strong>${hours(sessionMinutesForExam(exam.id, weekDates))} hrs</strong></div>`;
+          })
+          .join("") : `<div class="reminder-status">Add a subject to track your class study time.</div>`;
+        if (!timerSession) {
+          const subject = state.exams.find((exam) => exam.id === $("#timerSubject").value);
+          $("#timerSessionLabel").textContent = subject ? `Study time will count toward ${subject.name}.` : "Choose a subject to track class study time.";
+        }
+        renderTimerMode();
+        renderReminders();
+      };
+      const prettyTime = (time) => {
+        const [hour, minute] = time.split(":").map(Number);
+        return new Date(2000, 0, 1, hour, minute).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+      };
+      const openDialog = (id) => document.getElementById(id).showModal();
+      const closeDialog = (button) => button.closest("dialog").close();
+      const openExamDialog = (exam = null) => {
+        editingExamId = exam?.id ?? null;
+        const form = $("#examForm");
+        form.reset();
+        $("#examError").textContent = "";
+        $("#examDialogTitle").textContent = exam ? "Edit exam" : "Add an exam";
+        $("#examDialogDescription").textContent = exam ? "Update your exam details and countdown." : "Put a date on the calendar. We'll count down with you.";
+        $("#examSubmit").textContent = exam ? "Save changes" : "Save exam";
+        $("#examDate").min = exam ? "" : localDate();
+        if (exam) {
+          $("#examName").value = exam.name;
+          $("#examDate").value = exam.date;
+          $("#examTime").value = exam.time || "";
+          $("#examColor").value = exam.color;
+        }
+        openDialog("examDialog");
+      };
+      $("#accountButton").addEventListener("click", () => {
+        $("#supabaseUrl").value = supabaseConfig?.url || "";
+        $("#supabaseAnonKey").value = supabaseConfig?.anonKey || "";
+        $("#accountEmail").value = authSession?.user?.email || "";
+        $("#accountPassword").value = "";
+        setAccountMessage(authSession ? `Signed in as ${authSession.user.email}.` : "Configure Supabase, then create an account or sign in.");
+        openDialog("accountDialog");
+      });
+      $("#saveSupabaseConfig").addEventListener("click", () => {
+        try {
+          const url = normalizeSupabaseUrl($("#supabaseUrl").value);
+          const anonKey = $("#supabaseAnonKey").value.trim();
+          if (!anonKey) throw new Error("Enter your Supabase public anon key.");
+          if (authSession && supabaseConfig?.url !== url) {
+            throw new Error("Sign out before changing to a different Supabase project.");
+          }
+          supabaseConfig = { url, anonKey };
+          localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify(supabaseConfig));
+          updateAccountControls();
+          setAccountMessage("Supabase settings saved on this device. Run supabase-schema.sql in your project before syncing.");
+        } catch (error) {
+          setAccountMessage(error.message || "Could not save Supabase settings.", true);
+        }
+      });
+      const handleAccountAuth = async (action) => {
+        const email = $("#accountEmail").value.trim();
+        const password = $("#accountPassword").value;
+        if (!email || !password) {
+          setAccountMessage("Enter your email and password.", true);
+          return;
+        }
+        if (password.length < 8) {
+          setAccountMessage("Your password must be at least 8 characters.", true);
+          return;
+        }
+        const button = action === "signup" ? $("#signUpButton") : $("#signInButton");
+        button.disabled = true;
+        setAccountMessage(action === "signup" ? "Creating your account…" : "Signing in and loading your study data…");
+        try {
+          requireSupabaseConfig();
+          if (action === "signup") {
+            const response = await supabaseRequest("/auth/v1/signup", {
+              method: "POST",
+              body: { email, password }
+            });
+            if (response.access_token && response.user) {
+              const session = saveAuthResponse(response);
+              await loadAccountData(session, { importCurrentDevice: true });
+            } else {
+              localStorage.setItem(PENDING_IMPORT_KEY, JSON.stringify({
+                email,
+                data: JSON.parse(JSON.stringify(state))
+              }));
+              setAccountMessage("Account created. Check your email to confirm it, then sign in here to sync your study data.");
+            }
+          } else {
+            const response = await supabaseRequest("/auth/v1/token?grant_type=password", {
+              method: "POST",
+              body: { email, password }
+            });
+            if (!response.access_token || !response.user) throw new Error("Sign-in did not return a valid session.");
+            const session = saveAuthResponse(response);
+            await loadAccountData(session);
+          }
+        } catch (error) {
+          setAccountMessage(error.message || "Could not connect to Supabase.", true);
+          if (authSession?.user?.email) setAccountStatus("Sync issue");
+        } finally {
+          button.disabled = false;
+        }
+      };
+      $("#signUpButton").addEventListener("click", () => handleAccountAuth("signup"));
+      $("#signInButton").addEventListener("click", () => handleAccountAuth("signin"));
+      $("#signOutButton").addEventListener("click", async () => {
+        try {
+          const session = await getValidAuthSession();
+          if (session) await supabaseRequest("/auth/v1/logout", { method: "POST", token: session.access_token });
+          setAccountMessage("Signed out. Your account data remains safely in Supabase.");
+        } catch (error) {
+          setAccountMessage(`Signed out on this device; remote session could not be revoked: ${error.message}`, true);
+        } finally {
+          clearTimeout(cloudSyncTimer);
+          storeAuthSession(null);
+          try {
+            state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { ...emptyState };
+          } catch {
+            state = { ...emptyState };
+          }
+          render();
+          setAccountStatus(supabaseConfig ? "Not signed in" : "Device only");
+          $("#signOutButton").hidden = true;
+          $("#signUpButton").hidden = false;
+          $("#signInButton").hidden = false;
+        }
+      });
+      const restoreAccountSession = async () => {
+        if (!authSession?.refresh_token) {
+          updateAccountControls();
+          return;
+        }
+        try {
+          if (!supabaseConfig?.url || !supabaseConfig?.anonKey) {
+            setAccountStatus("Device only");
+            setAccountMessage("Sign-in settings are missing. Re-enter your Supabase project settings to restore sync.", true);
+            return;
+          }
+          const session = await getValidAuthSession();
+          if (!session) return;
+          updateAccountControls();
+          await loadAccountData(session);
+        } catch (error) {
+          console.error("Could not restore the Supabase session:", error);
+          storeAuthSession(null);
+          setAccountStatus("Not signed in");
+          setAccountMessage(`Could not restore your cloud session. Please sign in again. ${error.message}`, true);
+        }
+      };
+      const workspaceLinks = Array.from(document.querySelectorAll(".sidebar a.nav-item[href^='#']"));
+      const setActiveWorkspace = (hash) => {
+        workspaceLinks.forEach((link) => {
+          const active = link.hash === hash;
+          link.classList.toggle("active", active);
+          if (active) link.setAttribute("aria-current", "page");
+          else link.removeAttribute("aria-current");
+        });
+      };
+      workspaceLinks.forEach((link) => link.addEventListener("click", () => setActiveWorkspace(link.hash)));
+      window.addEventListener("hashchange", () => setActiveWorkspace(window.location.hash || "#overview"));
+      if ("IntersectionObserver" in window) {
+        const sections = workspaceLinks
+          .map((link) => document.querySelector(link.hash))
+          .filter(Boolean);
+        const observer = new IntersectionObserver((entries) => {
+          const visible = entries.filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (visible) setActiveWorkspace(`#${visible.target.id}`);
+        }, { rootMargin: "-15% 0px -70% 0px", threshold: [0, 0.1, 0.5] });
+        sections.forEach((section) => observer.observe(section));
+      }
+      document.querySelectorAll("[data-close]").forEach((button) => button.addEventListener("click", () => closeDialog(button)));
+      $("#quickAdd").addEventListener("click", () => openExamDialog());
+      $("#allExams").addEventListener("click", () => openExamDialog());
+      $("#sidebarAdd").addEventListener("click", () => openExamDialog());
+      $("#addTask").addEventListener("click", () => openDialog("taskDialog"));
+      $("#connectMusic").addEventListener("click", () => {
+        const platform = $("#musicPlatform").value;
+        const playlistUrl = $("#musicPlaylistUrl").value.trim();
+        if (!musicEmbedUrl(platform, playlistUrl)) {
+          $("#musicStatus").textContent = platform === "spotify"
+            ? "Paste a valid Spotify playlist, album, track, show, or episode link."
+            : "Paste a valid YouTube video, Shorts, or playlist link.";
+          return;
+        }
+        state.musicSettings = { platform, playlistUrl };
+        save();
+        renderTimerMode();
+        $("#musicStatus").textContent = timerRunning && timerMode === "focus"
+          ? "Playlist connected. Press play in the embedded player if needed."
+          : `Playlist connected. It will play during your next focus session.`;
+      });
+      $("#courseList").addEventListener("click", (event) => {
+        const course = event.target.closest("[data-exam]");
+        if (!course) return;
+        const subject = document.getElementById(`subject-${course.dataset.exam}`);
+        if (!subject) return;
+        subject.open = true;
+        subject.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#subject-resources");
+        setActiveWorkspace("#subject-resources");
+      });
+      $("#timerSubject").addEventListener("change", () => {
+        const subject = state.exams.find((exam) => exam.id === $("#timerSubject").value);
+        $("#timerSessionLabel").textContent = subject ? `Study time will count toward ${subject.name}.` : "Choose a subject to track class study time.";
+      });
+
+      $("#methodForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const answers = new FormData(event.currentTarget);
+        const challenge = String(answers.get("challenge"));
+        const habit = String(answers.get("habit"));
+        const time = String(answers.get("time"));
+        if (!challenge || !habit || !time) return;
+        const methods = [
+          {
+            name: "Retrieval practice",
+            score: (challenge === "remember" ? 3 : 0) + (habit === "reread" ? 3 : 0) + (habit === "mix" ? 1 : 0),
+            why: "You want to remember more than what feels familiar while rereading.",
+            action: "Close your notes, write or say what you can recall, then check and correct the gaps."
+          },
+          {
+            name: "Spaced practice",
+            score: (challenge === "retain" ? 3 : 0) + (habit === "cram" ? 3 : 0) + (time === "later" ? 2 : time === "week" ? 1 : 0),
+            why: "More than one review session gives you a chance to revisit material over time.",
+            action: time === "soon"
+              ? "Do a short recall session now and revisit the hardest points once more before the exam."
+              : "Schedule short reviews on separate days; start with what you studied most recently."
+          },
+          {
+            name: "Interleaved practice",
+            score: (challenge === "apply" ? 3 : 0) + (habit === "blocks" ? 2 : 0),
+            why: "Switching between related problem types can help you practice choosing the right approach.",
+            action: "After learning a method, mix a few related problem types and explain why each approach fits."
+          }
+        ].sort((a, b) => b.score - a.score);
+        const top = methods.filter((method) => method.score > 0).slice(0, 2);
+        const recommendations = top.length ? top : methods.slice(0, 2);
+        $("#methodResults").innerHTML = recommendations.map((method) =>
+          `<div class="recommendation"><strong>${method.name}</strong><p>${method.why} ${method.action}</p></div>`
+        ).join("");
+      });
+
+      $("#enableReminders").addEventListener("click", async () => {
+        if (!("Notification" in window)) {
+          renderReminders();
+          return;
+        }
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission === "granted") {
+            state.reminders.enabled = true;
+            save();
+            checkReminders();
+          }
+          renderReminders();
+        } catch (error) {
+          console.error("Could not request notification permission:", error);
+          $("#reminderStatus").textContent = "Could not enable notifications. Check your browser settings and try again.";
+        }
+      });
+
+      $("#examForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const form = new FormData(event.currentTarget);
+        const name = String(form.get("name")).trim();
+        const date = String(form.get("date"));
+        if (!name) {
+          $("#examError").textContent = "Enter a course or exam name.";
+          return;
+        }
+        if (!date || dayDiff(date) < 0) {
+          $("#examError").textContent = "Choose today or a future date.";
+          return;
+        }
+        const examDetails = {
+          name,
+          date,
+          time: String(form.get("time")),
+          color: String(form.get("color")) || COLORS[0]
+        };
+        if (editingExamId) {
+          const exam = state.exams.find((item) => item.id === editingExamId);
+          if (!exam) {
+            $("#examError").textContent = "This exam could not be found. Close the form and try again.";
+            return;
+          }
+          Object.assign(exam, examDetails);
+        } else {
+          state.exams.push({ id: crypto.randomUUID(), ...examDetails });
+        }
+        save();
+        event.currentTarget.reset();
+        editingExamId = null;
+        $("#examError").textContent = "";
+        $("#examDialog").close();
+        render();
+      });
+      $("#subjectMaterials").addEventListener("click", async (event) => {
+        const uploadButton = event.target.closest("[data-open-upload]");
+        if (uploadButton) {
+          $(`[data-upload-exam="${CSS.escape(uploadButton.dataset.openUpload)}"]`).click();
+          return;
+        }
+        const editButton = event.target.closest("[data-edit-exam]");
+        if (editButton) {
+          const exam = state.exams.find((item) => item.id === editButton.dataset.editExam);
+          if (exam) openExamDialog(exam);
+          return;
+        }
+        const blurtButton = event.target.closest("[data-blurt]");
+        if (blurtButton) {
+          const material = state.materials.find((item) => item.id === blurtButton.dataset.blurt);
+          if (!material) return;
+          activeBlurtMaterialId = material.id;
+          $("#blurtTitle").textContent = `Blurt · ${material.name}`;
+          $("#blurtInput").value = material.blurt || "";
+          $("#blurtResponse").textContent = "";
+          $("#blurtSource").textContent = "";
+          $("#blurtComparison").classList.remove("visible");
+          $(".blurt-inner").classList.remove("comparing");
+          $("#compareBlurt").textContent = "Compare with lecture";
+          $("#blurtStatus").textContent = "Your blurt is saved automatically on this device.";
+          openDialog("blurtDialog");
+          return;
+        }
+        const quizButton = event.target.closest("[data-quiz]");
+        if (quizButton) {
+          const material = state.materials.find((item) => item.id === quizButton.dataset.quiz);
+          if (!material?.studied) return;
+          try {
+            const questions = createQuestions(material.text);
+            $("#quizTitle").textContent = `15 questions · ${material.name}`;
+            $("#quizList").innerHTML = questions.map((question, index) =>
+              `<details class="quiz-item"><summary>${String(index + 1).padStart(2, "0")}. ${escapeHtml(question.prompt)}</summary><p class="quiz-answer">${escapeHtml(question.answer)}</p></details>`
+            ).join("");
+            openDialog("quizDialog");
+          } catch (error) {
+            alert(error.message);
+          }
+          return;
+        }
+        const removeButton = event.target.closest("[data-remove-material]");
+        if (removeButton) {
+          const material = state.materials.find((item) => item.id === removeButton.dataset.removeMaterial);
+          if (!material || !confirm(`Remove ${material.name}?`)) return;
+          state.materials = state.materials.filter((item) => item.id !== material.id);
+          save();
+          render();
+        }
+      });
+      $("#blurtInput").addEventListener("input", () => {
+        const material = state.materials.find((item) => item.id === activeBlurtMaterialId);
+        if (!material) return;
+        material.blurt = $("#blurtInput").value;
+        save();
+        $("#blurtStatus").textContent = "Saved on this device.";
+      });
+      $("#compareBlurt").addEventListener("click", () => {
+        const material = state.materials.find((item) => item.id === activeBlurtMaterialId);
+        if (!material) return;
+        const comparison = $("#blurtComparison");
+        const isVisible = comparison.classList.toggle("visible");
+        if (isVisible) {
+          $(".blurt-inner").classList.add("comparing");
+          $("#blurtResponse").textContent = material.blurt || "You haven't written anything yet.";
+          $("#blurtSource").textContent = material.text;
+          $("#compareBlurt").textContent = "Back to blank page";
+        } else {
+          $(".blurt-inner").classList.remove("comparing");
+          $("#compareBlurt").textContent = "Compare with lecture";
+        }
+      });
+      $("#subjectMaterials").addEventListener("change", async (event) => {
+        const checkbox = event.target.closest("[data-material]");
+        if (checkbox) {
+          const material = state.materials.find((item) => item.id === checkbox.dataset.material);
+          if (material) material.studied = checkbox.checked;
+          save();
+          render();
+          return;
+        }
+        const input = event.target.closest("[data-upload-exam]");
+        if (!input || !input.files?.length) return;
+        const file = input.files[0];
+        input.value = "";
+        if (file.size > 20 * 1024 * 1024) {
+          alert("That file is over 20 MB. Please upload a smaller lecture file.");
+          return;
+        }
+        try {
+          const text = (await extractLectureText(file)).replace(/\u0000/g, "").trim();
+          if (!text) throw new Error("No readable text was found. Try a text-based PowerPoint or upload the lecture notes as .txt or .md.");
+          if (text.length > 30000) throw new Error("This lecture contains too much text to save in this browser. Split it into smaller files and upload them separately.");
+          const storedCharacters = state.materials.reduce((sum, material) => sum + material.text.length, 0);
+          if (storedCharacters + text.length > 400000) throw new Error("Your saved lecture notes are taking up too much browser storage. Remove older materials before adding this file.");
+          state.materials.push({
+            id: crypto.randomUUID(),
+            examId: input.dataset.uploadExam,
+            name: file.name,
+            text,
+            studied: false
+          });
+          save();
+          render();
+        } catch (error) {
+          alert(error instanceof Error ? error.message : "The lecture could not be read.");
+        }
+      });
+      $("#taskForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const form = new FormData(event.currentTarget);
+        const name = String(form.get("name")).trim();
+        if (!name) {
+          $("#taskError").textContent = "Add a topic name to continue.";
+          return;
+        }
+        state.tasks.push({
+          id: crypto.randomUUID(),
+          name,
+          examId: String(form.get("exam")),
+          duration: Number(form.get("duration")),
+          done: false
+        });
+        save();
+        event.currentTarget.reset();
+        $("#taskError").textContent = "";
+        $("#taskDialog").close();
+        render();
+      });
+      $("#taskList").addEventListener("change", (event) => {
+        const input = event.target.closest("[data-task]");
+        if (!input) return;
+        const task = state.tasks.find((item) => item.id === input.dataset.task);
+        if (task) task.done = input.checked;
+        save();
+        render();
+      });
+      $("#examList").addEventListener("click", (event) => {
+        const editButton = event.target.closest("[data-edit-exam]");
+        if (editButton) {
+          const exam = state.exams.find((item) => item.id === editButton.dataset.editExam);
+          if (exam) openExamDialog(exam);
+          return;
+        }
+        const button = event.target.closest("[data-remove-exam]");
+        if (!button) return;
+        const exam = state.exams.find((item) => item.id === button.dataset.removeExam);
+        if (!exam || !confirm(`Remove ${exam.name} from your exam calendar?`)) return;
+        state.exams = state.exams.filter((item) => item.id !== exam.id);
+        save();
+        render();
+      });
+      $("#taskList").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-remove-task]");
+        if (!button) return;
+        state.tasks = state.tasks.filter((item) => item.id !== button.dataset.removeTask);
+        save();
+        render();
+      });
+
+      const updateTimer = () => {
+        const minutes = Math.floor(timerSeconds / 60).toString().padStart(2, "0");
+        const seconds = (timerSeconds % 60).toString().padStart(2, "0");
+        $("#timerDisplay").textContent = `${minutes}:${seconds}`;
+      };
+      const stopTimer = () => {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timerRunning = false;
+      };
+      const startTimer = () => {
+        timerRunning = true;
+        renderTimerMode();
+        timerInterval = setInterval(() => {
+          timerSeconds--;
+          timerElapsedSeconds++;
+          updateTimer();
+          if (timerSeconds > 0) return;
+          stopTimer();
+          if (timerMode === "focus") {
+            const minutes = Math.max(1, Math.round(timerElapsedSeconds / 60));
+            state.sessions.push({
+              date: localDate(),
+              minutes,
+              examId: timerSession?.examId || "",
+              topic: timerSession?.topic || "",
+              source: "timer"
+            });
+            save();
+            timerMode = "break";
+            timerSeconds = state.timerSettings.breakMinutes * 60;
+            timerElapsedSeconds = 0;
+            currentBreakTip = BREAK_TIPS[Math.floor(Math.random() * BREAK_TIPS.length)];
+            $("#timerSessionLabel").textContent = `Focus session saved${timerSession?.topic ? ` · ${timerSession.topic}` : ""}. Your ${state.timerSettings.breakMinutes}-minute break starts now.`;
+            timerSession = null;
+            render();
+            startTimer();
+            return;
+          }
+          timerMode = "focus";
+          timerSeconds = state.timerSettings.focusMinutes * 60;
+          timerElapsedSeconds = 0;
+          currentBreakTip = "";
+          $("#timerSessionLabel").textContent = "Break finished. Ready for another focus session?";
+          render();
+          updateTimer();
+        }, 1000);
+      };
+      $("#saveTimerSettings").addEventListener("click", () => {
+        const focusMinutes = Number($("#focusDuration").value);
+        const breakMinutes = Number($("#breakDuration").value);
+        if (!validDuration(focusMinutes, 180) || !validDuration(breakMinutes, 60)) {
+          $("#timerSessionLabel").textContent = "Set focus to 1–180 minutes and break to 1–60 minutes.";
+          return;
+        }
+        state.timerSettings = { focusMinutes, breakMinutes };
+        timerMode = "focus";
+        timerSeconds = focusMinutes * 60;
+        timerElapsedSeconds = 0;
+        timerSession = null;
+        save();
+        updateTimer();
+        render();
+        $("#timerSessionLabel").textContent = `Timer saved: ${focusMinutes}-minute focus and ${breakMinutes}-minute break.`;
+      });
+      $("#timerToggle").addEventListener("click", () => {
+        if (timerRunning) {
+          stopTimer();
+          renderTimerMode();
+          $("#timerSessionLabel").textContent = timerMode === "focus"
+            ? `Paused · ${timerSession?.topic ? `${timerSession.topic} · ` : ""}resume to keep tracking this session.`
+            : "Break paused. Resume when you’re ready.";
+          return;
+        }
+        if (timerMode === "focus" && !timerSession) {
+          const examId = $("#timerSubject").value;
+          const subject = state.exams.find((exam) => exam.id === examId);
+          if (examId && !subject) {
+            $("#timerSessionLabel").textContent = "That subject is no longer available. Choose another subject.";
+            return;
+          }
+          timerSession = {
+            examId,
+            topic: $("#timerTopic").value.trim()
+          };
+          $("#timerSubject").disabled = true;
+          $("#timerTopic").disabled = true;
+          $("#timerSessionLabel").textContent = subject
+            ? `Tracking ${subject.name}${timerSession.topic ? ` · ${timerSession.topic}` : ""}.`
+            : `Tracking general study${timerSession.topic ? ` · ${timerSession.topic}` : ""}.`;
+        }
+        startTimer();
+      });
+      $("#timerReset").addEventListener("click", () => {
+        stopTimer();
+        timerMode = "focus";
+        timerSeconds = state.timerSettings.focusMinutes * 60;
+        timerElapsedSeconds = 0;
+        timerSession = null;
+        currentBreakTip = "";
+        const subject = state.exams.find((exam) => exam.id === $("#timerSubject").value);
+        $("#timerSessionLabel").textContent = subject ? `Study time will count toward ${subject.name}.` : "Choose a subject to track class study time.";
+        updateTimer();
+        renderTimerMode();
+      });
+
+      $("#examDate").min = localDate();
+      updateTimer();
+      render();
+      updateAccountControls();
+      restoreAccountSession();
+      checkReminders();
+      setInterval(checkReminders, 60_000);
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) checkReminders();
+      });
+    })();
+  </script>
+</body>
+</html>
