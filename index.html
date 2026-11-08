@@ -540,7 +540,7 @@
     <div class="dialog-inner">
       <div class="dialog-head"><div><h2>Account &amp; sync</h2><p>Sync your study plan across your signed-in devices.</p></div><button class="close" type="button" data-close aria-label="Close">×</button></div>
       <div class="account-form">
-        <p class="account-help">First, configure your Supabase project. Use its project URL and public anon key (never a service-role key), and run <a href="./supabase-schema.sql" target="_blank" rel="noopener noreferrer">supabase-schema.sql</a> in the Supabase SQL Editor. For email confirmation, configure the hosted website URL in Supabase Auth.</p>
+        <p class="account-help">This site is configured with your Supabase project URL and public anon key. The anon key is intended for browser use; never put a service-role key or database password here. Run <a href="./supabase-schema.sql" target="_blank" rel="noopener noreferrer">supabase-schema.sql</a> in the Supabase SQL Editor. For email confirmation, configure your GitHub Pages URL in Supabase Auth.</p>
         <div class="field"><label for="supabaseUrl">Supabase project URL</label><input id="supabaseUrl" type="url" autocomplete="url" placeholder="https://your-project.supabase.co"></div>
         <div class="field"><label for="supabaseAnonKey">Supabase public anon key</label><input id="supabaseAnonKey" type="password" autocomplete="off" placeholder="Paste your public anon key"></div>
         <div class="account-actions"><button class="btn" id="saveSupabaseConfig" type="button">Save project settings</button></div>
@@ -562,6 +562,10 @@
       const SUPABASE_CONFIG_KEY = "finals-focus-supabase-config";
       const AUTH_SESSION_KEY = "finals-focus-auth-session";
       const PENDING_IMPORT_KEY = "finals-focus-pending-import";
+      const DEFAULT_SUPABASE_CONFIG = {
+        url: "https://foctjzmnccwqprobbrnm.supabase.co",
+        anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZvY3Rqem1uY2N3cXByb2Jicm5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQwOTAxNzEsImV4cCI6MjEwOTY2NjE3MX0.Vj7x_miVdOYPdtjlM7KeSGDz1OWAxIpSDSaO0__qvlM"
+      };
       const COLORS = ["#6b8fc4", "#54a88a", "#d68b63", "#9a7bc1", "#d3a53f", "#d66b83", "#e17652", "#cf8540", "#397c78", "#50a6bd", "#8871b5", "#c05252", "#7d9651", "#68727d", "#b477a2"];
       const DEFAULT_FOCUS_MINUTES = 25;
       const DEFAULT_BREAK_MINUTES = 10;
@@ -576,10 +580,11 @@
       let supabaseConfig = null;
       let authSession = null;
       try {
-        supabaseConfig = JSON.parse(localStorage.getItem(SUPABASE_CONFIG_KEY) || "null");
+        supabaseConfig = JSON.parse(localStorage.getItem(SUPABASE_CONFIG_KEY) || "null") || DEFAULT_SUPABASE_CONFIG;
         authSession = JSON.parse(localStorage.getItem(AUTH_SESSION_KEY) || "null");
       } catch {
-        console.error("Could not read the saved account settings.");
+        console.error("Could not read the saved account settings; using the configured Supabase project.");
+        supabaseConfig = DEFAULT_SUPABASE_CONFIG;
       }
       if (authSession?.user?.id) {
         try {
